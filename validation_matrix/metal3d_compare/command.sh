@@ -1,0 +1,1 @@
+python analysis_new_main.py --base_dir /home/xiaobo/project/diffusion/metal-site-prediction/Metal3D/allprotein_pthreshold_A100_0.95
