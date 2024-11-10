@@ -7,7 +7,6 @@ SuperMetal is a state-of-the-art generative AI framework designed to predict met
 - Predicts metal ion binding sites in protein structures
 - Uses 3D diffusion-based generative modeling
 - Enhanced accuracy through a confidence model and clustering
-- Supports various metal ions, including zinc
 
 ## Setup and Installation
 
