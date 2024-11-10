@@ -1,0 +1,6 @@
+torch
+e3nn
+numpy
+torch-geometric
+esm
+wandb
