@@ -1,4 +1,3 @@
-
 # SuperMetal: A Generative AI Framework for Rapid and Precise Metal Ion Location Prediction in Proteins
 
 SuperMetal is a state-of-the-art generative AI framework designed to predict metal ion locations within proteins with high precision. This framework builds upon [DiffDock](https://github.com/gcorso/DiffDock) and introduces modifications to simultaneously diffuse multiple metal ions over 3D space. SuperMetal integrates a confidence model and clustering mechanism to improve prediction accuracy.
@@ -35,7 +34,14 @@ python datasets/esm_embedding_preparation_metal.py \
 --out_file data/prepared_for_esm_metal_zincbind_cleaned.fasta
 ```
 
-### Step 2: Train the Model
+### Step 2: Generate ESM Embeddings
+Navigate to the `data` directory and generate the ESM embeddings:
+```bash
+cd data
+python ../esmfold/extract.py esm2_t33_650M_UR50D prepared_for_esm_metal_zincbind_cleaned.fasta embeddings_output_cleaned --repr_layers 33 --include per_tok --truncation_seq_length 4096
+```
+
+### Step 3: Train the Model
 Run the main training script:
 ```bash
 python -m train \
@@ -76,7 +82,7 @@ python -m train \
 --n_epochs 500
 ```
 
-### Step 3: Train the Confidence Model
+### Step 4: Train the Confidence Model
 Run the following script to train the confidence model:
 ```bash
 python -m confidence.confidence_train \
@@ -114,7 +120,7 @@ python -m confidence.confidence_train \
 --cache_ids_to_combine 1
 ```
 
-### Step 4: Run Evaluation
+### Step 5: Run Evaluation
 To evaluate the model, run:
 ```bash
 python -m validation_matrix.validation_1 \
@@ -126,7 +132,7 @@ python -m validation_matrix.validation_1 \
 --prob_cutoff 0.5
 ```
 
-### Step 5: Speed Test and Visualization
+### Step 6: Speed Test and Visualization
 Run the speed test and visualization script:
 ```bash
 python speedTest/speed_test.py
