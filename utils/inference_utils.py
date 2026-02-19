@@ -244,7 +244,7 @@ class InferenceDataset(Dataset):
             # parse the receptor from the pdb file
             rec_model = parse_pdb_from_path(protein_file)
             get_lig_graph_with_matching(mol, complex_graph, popsize=None, maxiter=None, matching=False, keep_original=False,
-                                        num_conformers=1, remove_hs=self.remove_hs)
+                                        num_conformers=1, remove_hs=self.remove_hs, use_metal_featurizer=True)
             rec, rec_coords, c_alpha_coords, n_coords, c_coords, lm_embeddings = extract_receptor_structure(rec_model, mol, lm_embedding_chains=lm_embedding)
             if lm_embeddings is not None and len(c_alpha_coords) != len(lm_embeddings):
                 print(f'LM embeddings for complex {name} did not have the right length for the protein. Skipping {name}.')

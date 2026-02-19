@@ -1,142 +1,228 @@
-# SuperMetal: A Generative AI Framework for Rapid and Precise Metal Ion Location Prediction in Proteins
+# SuperMetal: Metal Ion Location Prediction in Proteins
 
-SuperMetal is a state-of-the-art generative AI framework designed to predict metal ion locations within proteins with high precision. This framework builds upon [DiffDock](https://github.com/gcorso/DiffDock) and introduces modifications to simultaneously diffuse multiple metal ions over 3D space. SuperMetal integrates a confidence model and clustering mechanism to improve prediction accuracy.
+A diffusion-based framework for predicting metal ion binding sites in protein structures.
 
-## Features
-- Predicts metal ion binding sites in protein structures
-- Uses 3D diffusion-based generative modeling
-- Enhanced accuracy through a confidence model and clustering
+---
 
-## Setup and Installation
+## 🚀 Quick Start
 
-1. **Clone the Repository**  
-   ```bash
-   git clone https://github.com/your-repo/SuperMetal.git
-   cd SuperMetal
-   ```
-
-2. **Install Requirements**  
-   Ensure you have a Python environment set up, then install the necessary packages.
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Download Dataset**  
-   Place your dataset in the `data/` directory, structured as outlined in the dataset preparation step below.
-
-## Steps to Retrain the Model
-
-### Step 1: Prepare FASTA Data
-Prepare the data for embedding:
 ```bash
+# Install
+git clone https://github.com/scofieldlinlin/SuperMetal.git
+cd SuperMetal
+conda create -n supermetal python=3.9 -y && conda activate supermetal
+pip install -e .
+
+# Run example
+python predict.py --protein examples/example_protein.pdb --output results/
+```
+
+Output: `results/example_protein_combined.pdb` with protein + predicted zinc positions.
+
+**Python API:**
+```python
+from predict import predict
+results = predict("examples/example_protein.pdb")
+print(results['cluster_centroids'])  # Predicted zinc coordinates
+```
+
+**Note:** First run downloads ESM weights (~2.5GB) and model checkpoints (~50MB). Subsequent runs use cache.
+
+---
+
+## 🔮 Prediction
+
+### Command Line
+```bash
+# Basic
+python predict.py --protein protein.pdb
+
+# With ground truth evaluation
+python predict.py --protein protein.pdb --ground-truth ligands.mol2 --output results/
+```
+
+### Python API
+```python
+from predict import predict
+
+results = predict("protein.pdb")
+print(results['cluster_centroids'])  # Final predicted positions
+
+# With evaluation
+results = predict("protein.pdb", ground_truth_ligand_path="ligands.mol2")
+print(f"Coverage: {results['metrics']['coverage']:.0f}%")
+```
+
+### Options
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--protein` | required | Input PDB file |
+| `--output` | `.` | Output directory |
+| `--num-metals` | 100 | Initial positions to generate |
+| `--confidence-threshold` | 0.5 | Filtering threshold |
+| `--cluster-eps` | 5.0 | DBSCAN clustering radius (Å) |
+| `--no-confidence` | False | Disable confidence filtering |
+| `--cpu` | False | Use CPU instead of GPU |
+
+### Output Files
+- `*_metal_predictions.pdb` - Predicted zinc positions only
+- `*_combined.pdb` - Protein + predicted zinc positions
+
+### Pre-trained Models
+Models auto-download from [HuggingFace](https://huggingface.co/scofieldlinlin/SuperMetal) on first use.
+
+Local checkpoints (if available):
+- `workdir/large_all_atoms_model/best_model.pt` - Score model
+- `workdir/large_confidence_model/best_model.pt` - Confidence model
+
+---
+
+## 🎯 Training
+
+Training has two stages: (1) Score model (diffusion) and (2) Confidence model (filtering).
+
+### Option A: Download Pre-built Cache (Recommended)
+
+Training data (preprocessed with ESM embeddings) is available on HuggingFace (~32GB):
+
+```bash
+pip install huggingface_hub
+
+python -c "
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id='scofieldlinlin/SuperMetal',
+    allow_patterns='cache/*',
+    local_dir='.'
+)
+"
+```
+
+### Option B: Process from Scratch
+
+If you want to process your own PDB files:
+
+```bash
+# Step 1: Prepare FASTA from PDB files
 python datasets/esm_embedding_preparation_metal.py \
---data_dir data/zincbind_cleaned_processed \
---out_file data/prepared_for_esm_metal_zincbind_cleaned.fasta
+  --data_dir your_pdb_folder/ \
+  --out_file data/your_data.fasta
+
+# Step 2: Generate ESM embeddings (~2.5GB model downloads on first run)
+python esmfold/extract.py esm2_t33_650M_UR50D \
+  data/your_data.fasta \
+  data/your_embeddings/ \
+  --repr_layers 33 --include per_tok --truncation_seq_length 4096
+
+# Step 3: Train (cache auto-generated on first run)
+python -m train \
+  --data_dir your_pdb_folder/ \
+  --split_train your_split.txt \
+  --esm_embeddings_path data/your_embeddings/ \
+  --cache_path data/your_cache/ \
+  ...
 ```
 
-### Step 2: Generate ESM Embeddings
-Navigate to the `data` directory and generate the ESM embeddings:
-```bash
-cd data
-python ../esmfold/extract.py esm2_t33_650M_UR50D prepared_for_esm_metal_zincbind_cleaned.fasta embeddings_output_cleaned --repr_layers 33 --include per_tok --truncation_seq_length 4096
-```
+### 1. Train Score Model (Diffusion)
 
-### Step 3: Train the Model
-Run the main training script:
 ```bash
 python -m train \
---run_name large_all_atoms_model \
---all_atoms \
---test_sigma_intervals \
---esm_embeddings_path data/embeddings_output_cleaned \
---data_dir data/zincbind_cleaned_processed \
---split_train data/splits/train.txt \
---split_val data/splits/val.txt \
---split_test data/splits/test_metal3d.txt \
---log_dir workdir \
---lr 1e-3 \
---tr_sigma_min 0.1 \
---tr_sigma_max 20 \
---dynamic_max_cross \
---batch_size 8 \
---ns 40 \
---nv 4 \
---num_conv_layers 3 \
---scheduler plateau \
---scale_by_sigma \
---dropout 0.1 \
---remove_hs \
---c_alpha_max_neighbors 24 \
---receptor_radius 15 \
---num_dataloader_workers 2 \
---num_workers 2 \
---wandb \
---cudnn_benchmark \
---val_inference_freq 20 \
---num_inference_complexes 500 \
---use_ema \
---distance_embed_dim 64 \
---cross_distance_embed_dim 64 \
---sigma_embed_dim 64 \
---scheduler_patience 100 \
---n_epochs 500
+  --cache_path cache \
+  --split_train data/splits/train.txt \
+  --split_val data/splits/val.txt \
+  --log_dir workdir --run_name my_score_model \
+  --n_epochs 500 --batch_size 8 \
+  --ns 40 --nv 4 --num_conv_layers 3 \
+  --distance_embed_dim 64 --cross_distance_embed_dim 64 \
+  --all_atoms
 ```
 
-### Step 4: Train the Confidence Model
-Run the following script to train the confidence model:
+Output: `workdir/my_score_model/best_model.pt`
+
+### 2. Train Confidence Model
+
+Requires a trained score model first.
+
 ```bash
 python -m confidence.confidence_train \
---original_model_dir workdir/large_all_atoms_model \
---data_dir data/zincbind_cleaned_processed \
---all_atoms \
---run_name large_confidence_model \
---cache_path data/large_cache_confidence \
---split_train data/splits/train.txt \
---split_val data/splits/val.txt \
---split_test data/splits/test_metal3d.txt \
---inference_steps 20 \
---samples_per_complex 1 \
---batch_size 8 \
---batch_size_preprocessing 1 \
---n_epochs 100 \
---wandb \
---lr 1e-3 \
---scheduler_patience 50 \
---ns 24 \
---nv 6 \
---num_conv_layers 5 \
---dynamic_max_cross \
---scale_by_sigma \
---dropout 0.1 \
---remove_hs \
---c_alpha_max_neighbors 24 \
---receptor_radius 15 \
---esm_embeddings_path data/esm2_3billion_embeddings.pt \
---main_metric confidence_loss \
---main_metric_goal min \
---best_model_save_frequency 5 \
---rmsd_classification_cutoff 5 \
---cache_creation_id 1 \
---cache_ids_to_combine 1
+  --original_model_dir workdir/my_score_model \
+  --cache_path cache \
+  --split_train data/splits/train.txt \
+  --split_val data/splits/val.txt \
+  --log_dir workdir --run_name my_confidence_model \
+  --n_epochs 100 --batch_size 8 \
+  --ns 24 --nv 6 --num_conv_layers 5 \
+  --distance_embed_dim 32 --cross_distance_embed_dim 32 \
+  --all_atoms
 ```
 
-### Step 5: Run Evaluation
-To evaluate the model, run:
+Output: `workdir/my_confidence_model/best_model.pt`
+
+### Quick Test (smaller parameters)
+
+For testing the training pipeline with limited GPU memory (uses included test data):
+
 ```bash
-python -m validation_matrix.validation_1 \
---original_model_dir workdir/all_atoms_model \
---confidence_dir workdir/confidence_model \
---split_test data/splits/test_noMetal3d_noOverlap.txt \
---batch_size_preprocessing 1 \
---rmsd_classification_cutoff 5 \
---prob_cutoff 0.5
+# Score model quick test (untested for accuracy)
+python -m train \
+  --data_dir data/zincbind_test_16 \
+  --split_train data/splits/train_test16.txt \
+  --split_val data/splits/train_test16.txt \
+  --esm_embeddings_path data/embeddings_output_test \
+  --log_dir workdir --run_name test_score_model \
+  --n_epochs 10 --batch_size 2 --ns 8 --nv 2 --num_conv_layers 1 --all_atoms
 ```
 
-### Step 6: Speed Test and Visualization
-Run the speed test and visualization script:
+**Note:** Smaller parameters are for testing only. Model quality is not guaranteed.
+
+### Training Output
+Saved to `workdir/<run_name>/`:
+- `best_model.pt` - Best validation checkpoint
+- `model_parameters.yml` - Hyperparameters
+
+---
+
+## 🔧 Troubleshooting
+
+### Wrong e3nn version
 ```bash
-python speedTest/speed_test.py
+pip install e3nn==0.5.1  # Critical!
 ```
 
-## License
-This project is licensed under the MIT License.
+### Out of GPU memory
+Reduce batch size: `--batch_size 2` or model size: `--ns 12 --nv 2`
+
+### First run slow
+Normal! Building cache takes 1-2 min for test data, 30-60 min for full dataset. Subsequent runs are instant.
+
+---
+
+## 📁 Project Structure
+
+```
+SuperMetal/
+├── predict.py             # Prediction API
+├── train.py               # Training script
+├── examples/              # Example protein files
+├── scripts/               # Training scripts
+├── models/                # Model architectures
+├── utils/                 # Utilities
+├── data/                  # Datasets and cache
+└── workdir/               # Training outputs
+```
+
+---
+
+## 📋 Requirements
+
+- Python 3.9
+- PyTorch 2.2.1
+- e3nn 0.5.1 (critical!)
+- CUDA 12.1+ (for GPU)
+
+---
+
+## 🙏 Acknowledgments
+
+Built upon [DiffDock](https://github.com/gcorso/DiffDock) and [ESM](https://github.com/facebookresearch/esm).
+

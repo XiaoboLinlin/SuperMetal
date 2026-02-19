@@ -1,0 +1,19 @@
+name: supermetal
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9.18
+  - pip
+  - pip:
+      - torch==2.2.1
+      - torchvision==0.17.1
+      - torchaudio==2.2.1
+      - numpy==1.26.4
+      - biopython==1.83
+      - tqdm>=4.66.0
+      - PyYAML>=6.0.0
+      - requests>=2.31.0
+      - matplotlib>=3.8.0
+      - pandas>=2.2.0
+      - wandb>=0.16.0

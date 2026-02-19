@@ -1,0 +1,9 @@
+@<TRIPOS>MOLECULE
+../../diffmetal_dataset_zhaoqian/zincbind_zn/4LNB_zn.pdb
+ 1 0 0 0 0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 ZN         21.1780   -0.4960    7.4900 Zn      1  ZN1         0.0000
+@<TRIPOS>BOND

@@ -84,7 +84,7 @@ def get_optimizer_and_scheduler(args, model, scheduler_mode='min'):
 
 
 def get_model(args, device, t_to_sigma, no_parallel=False, confidence_mode=False):
-    if 'all_atoms' in args and args.all_atoms:
+    if hasattr(args, 'all_atoms') and args.all_atoms:
         model_class = AAScoreModel
     else:
         model_class = CGScoreModel
@@ -115,7 +115,7 @@ def get_model(args, device, t_to_sigma, no_parallel=False, confidence_mode=False
                         lm_embedding_type=lm_embedding_type,
                         confidence_mode=confidence_mode,
                         num_confidence_outputs=len(
-                            args.rmsd_classification_cutoff) + 1 if 'rmsd_classification_cutoff' in args and isinstance(
+                            args.rmsd_classification_cutoff) + 1 if hasattr(args, 'rmsd_classification_cutoff') and isinstance(
                             args.rmsd_classification_cutoff, list) else 1)
 
     if device.type == 'cuda' and not no_parallel:

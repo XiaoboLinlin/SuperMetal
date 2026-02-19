@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SuperMetal"
+version = "0.1.0"
+description = "A Generative AI Framework for Rapid and Precise Metal Ion Location Prediction in Proteins"
+authors = [
+    {name = "Xiaobo Lin"}
+]
+readme = "README.md"
+requires-python = ">=3.9,<3.10"
+license = {text = "MIT"}
+keywords = ["protein", "metal-binding", "diffusion", "deep-learning", "structure-prediction"]
+
+dependencies = [
+    "torch==2.2.1",
+    "torchvision==0.17.1",
+    "torchaudio==2.2.1",
+    "numpy==1.26.4",
+    "biopython==1.83",
+    "tqdm>=4.66.0",
+    "PyYAML>=6.0.0",
+    "requests>=2.31.0",
+    "matplotlib>=3.8.0",
+    "pandas>=2.2.0",
+    "scipy==1.9.1",
+    "rdkit-pypi==2022.3.5",
+    "spyrmsd==0.5.2",
+    "e3nn==0.5.1",
+    "torch-geometric>=2.0.0",
+    "torch-scatter>=2.0.0",
+    "torch-sparse>=0.6.0",
+    "torch-cluster>=1.6.0",
+    "openbabel-wheel>=3.1.0",
+    "scikit-learn>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "wandb>=0.16.0",
+]
+hub = [
+    "huggingface_hub>=0.20.0",
+]
+
+[project.scripts]
+supermetal-predict = "predict:main"
+supermetal-train = "train:main_function"
+
+[tool.setuptools]
+packages = ["esm", "esm.model", "esm.inverse_folding", "esm.esmfold.v1", "datasets", "models", "utils", "confidence", "validation_matrix", "supermetal"]
+
+[tool.setuptools.package-data]
+esm = ["**/*.py"]
+
