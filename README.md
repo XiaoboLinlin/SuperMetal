@@ -4,7 +4,7 @@ A diffusion-based framework for predicting metal ion binding sites in protein st
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install
@@ -30,7 +30,7 @@ print(results['cluster_centroids'])  # Predicted zinc coordinates
 
 ---
 
-## 🔮 Prediction
+## Prediction
 
 ### Command Line
 ```bash
@@ -77,7 +77,7 @@ Local checkpoints (if available):
 
 ---
 
-## 🎯 Training
+## Training
 
 Training has two stages: (1) Score model (diffusion) and (2) Confidence model (filtering).
 
@@ -182,7 +182,7 @@ Saved to `workdir/<run_name>/`:
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Wrong e3nn version
 ```bash
@@ -197,7 +197,7 @@ Normal! Building cache takes 1-2 min for test data, 30-60 min for full dataset. 
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 SuperMetal/
@@ -213,7 +213,7 @@ SuperMetal/
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 - Python 3.9
 - PyTorch 2.2.1
@@ -222,7 +222,7 @@ SuperMetal/
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built upon [DiffDock](https://github.com/gcorso/DiffDock) and [ESM](https://github.com/facebookresearch/esm).
 
