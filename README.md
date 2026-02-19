@@ -197,31 +197,6 @@ Normal! Building cache takes 1-2 min for test data, 30-60 min for full dataset. 
 
 ---
 
-## Project Structure
-
-```
-SuperMetal/
-├── predict.py             # Prediction API
-├── train.py               # Training script
-├── examples/              # Example protein files
-├── scripts/               # Training scripts
-├── models/                # Model architectures
-├── utils/                 # Utilities
-├── data/                  # Datasets and cache
-└── workdir/               # Training outputs
-```
-
----
-
-## Requirements
-
-- Python 3.9
-- PyTorch 2.2.1
-- e3nn 0.5.1 (critical!)
-- CUDA 12.1+ (for GPU)
-
----
-
 ## Citation
 
 If you use SuperMetal in your research, please cite:
