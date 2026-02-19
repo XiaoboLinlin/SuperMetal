@@ -1,6 +1,4 @@
-# SuperMetal: Metal Ion Location Prediction in Proteins
-
-A diffusion-based framework for predicting metal ion binding sites in protein structures.
+# SuperMetal: a generative AI framework for rapid and precise metal ion location prediction in proteins
 
 ---
 
