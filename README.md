@@ -222,6 +222,25 @@ SuperMetal/
 
 ---
 
+## Citation
+
+If you use SuperMetal in your research, please cite:
+
+```bibtex
+@article{lin2025supermetal,
+  title={SuperMetal: a generative AI framework for rapid and precise metal ion location prediction in proteins},
+  author={Lin, Xiaobo and Su, Zhaoqian and Liu, Yunchao and Liu, Jingxian and Kuang, Xiaohan and Cummings, Peter T and Spencer-Smith, Jesse and Meiler, Jens},
+  journal={Journal of Cheminformatics},
+  volume={17},
+  number={1},
+  pages={107},
+  year={2025},
+  publisher={Springer}
+}
+```
+
+---
+
 ## Acknowledgments
 
 Built upon [DiffDock](https://github.com/gcorso/DiffDock) and [ESM](https://github.com/facebookresearch/esm).
