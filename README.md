@@ -32,10 +32,10 @@ print(results['cluster_centroids'])  # Predicted zinc coordinates
 
 ### Command Line
 ```bash
-# Basic
-python predict.py --protein protein.pdb
+# Basic prediction
+python predict.py --protein protein.pdb --output results/
 
-# With ground truth evaluation
+# With ground truth evaluation (optional, for benchmarking)
 python predict.py --protein protein.pdb --ground-truth ligands.mol2 --output results/
 ```
 
@@ -43,10 +43,11 @@ python predict.py --protein protein.pdb --ground-truth ligands.mol2 --output res
 ```python
 from predict import predict
 
+# Basic prediction
 results = predict("protein.pdb")
 print(results['cluster_centroids'])  # Final predicted positions
 
-# With evaluation
+# With evaluation (optional, requires ground truth)
 results = predict("protein.pdb", ground_truth_ligand_path="ligands.mol2")
 print(f"Coverage: {results['metrics']['coverage']:.0f}%")
 ```
@@ -56,6 +57,7 @@ print(f"Coverage: {results['metrics']['coverage']:.0f}%")
 |--------|---------|-------------|
 | `--protein` | required | Input PDB file |
 | `--output` | `.` | Output directory |
+| `--ground-truth` | None | (Optional) mol2 file with known zinc positions for evaluation |
 | `--num-metals` | 100 | Initial positions to generate |
 | `--confidence-threshold` | 0.5 | Filtering threshold |
 | `--cluster-eps` | 5.0 | DBSCAN clustering radius (Å) |

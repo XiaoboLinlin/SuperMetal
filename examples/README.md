@@ -8,6 +8,8 @@ This folder contains example files to test SuperMetal predictions.
 python predict.py --protein examples/example_protein.pdb --output results/
 ```
 
+Output: `results/example_protein_combined.pdb` with predicted zinc positions.
+
 ## More Test Proteins
 
 Additional test proteins are available in `data/zincbind_test_16/`:
@@ -20,7 +22,15 @@ Additional test proteins are available in `data/zincbind_test_16/`:
 | 5ZYA | 3 | `data/zincbind_test_16/5ZYA/` |
 | 2LXH, 3DGV, 3M4G, 3MA2, 3V0B, 4BZ5, 4LGR, 4LNB, 4U5G, 5IY9, 5M8M, 6FUL | varies | `data/zincbind_test_16/` |
 
-### Run with ground truth evaluation
+### Basic prediction (no ground truth needed)
+```bash
+python predict.py --protein data/zincbind_test_16/1Z3A/1Z3A_protein_processed.pdb --output results/
+```
+
+### With ground truth evaluation (optional)
+
+Use `--ground-truth` only if you have known zinc positions and want to evaluate accuracy:
+
 ```bash
 # Test on 1Z3A (2 zinc sites)
 python predict.py \
